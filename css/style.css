@@ -56,7 +56,7 @@ body {
     radial-gradient(circle at top left, rgba(78, 165, 255, 0.18), transparent 30%),
     radial-gradient(circle at bottom right, rgba(44, 214, 38, 0.14), transparent 28%),
     var(--bg-color);
-  padding-left: 30rem;
+  padding-left: 26rem;
   color: var(--black);
 }
 
@@ -166,58 +166,75 @@ body.active .blog-section .btn {
   top: 0;
   left: 0;
   z-index: 999;
-  width: 30rem;
+  width: 26rem;
   border-right: var(--border);
   height: 100%;
-  padding: 2.5rem 2rem;
+  padding: 1.5rem 1.5rem;
   text-align: center;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: rgba(7, 16, 22, 0.9);
   backdrop-filter: blur(18px);
   box-shadow: 0.8rem 0 2rem rgba(0, 0, 0, 0.2);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(44, 214, 38, 0.3) transparent;
+}
+
+.header::-webkit-scrollbar {
+  width: 0.4rem;
+}
+
+.header::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.header::-webkit-scrollbar-thumb {
+  background: rgba(44, 214, 38, 0.3);
+  border-radius: 1rem;
 }
 
 .header .user {
-  padding-top: 1rem;
+  padding-top: 0.5rem;
 }
 
 .header .user img {
-  margin: 1rem 0 1.5rem;
-  border: 0.4rem solid rgba(78, 165, 255, 0.35);
+  margin: 0.5rem 0 1rem;
+  border: 0.3rem solid rgba(78, 165, 255, 0.35);
   border-radius: 50%;
-  height: 18rem;
-  width: 18rem;
+  height: 11rem;
+  width: 11rem;
   object-fit: cover;
-  box-shadow: 0 0 0 0.8rem rgba(44, 214, 38, 0.08), 0 1.2rem 2.5rem rgba(78, 165, 255, 0.18);
+  box-shadow: 0 0 0 0.5rem rgba(44, 214, 38, 0.08), 0 1rem 2rem rgba(78, 165, 255, 0.18);
 }
 
 .header .user h3 {
   color: #eef7ff;
-  font-size: 2.4rem;
-  letter-spacing: 0.12rem;
+  font-size: 1.8rem;
+  letter-spacing: 0.1rem;
 }
 
 .header .user p {
   color: var(--light-color);
-  font-size: 1.45rem;
-  line-height: 1.7;
-  margin-top: 0.8rem;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin-top: 0.5rem;
 }
 
 .header .navbar {
-  padding-top: 1.5rem;
+  padding-top: 1rem;
 }
 
 .header .navbar a {
   display: block;
-  margin: 1rem 0;
-  padding: 1rem 1.2rem;
+  margin: 0.5rem 0;
+  padding: 0.7rem 1rem;
   border-radius: 999px;
-  font-size: 1.7rem;
+  font-size: 1.4rem;
   color: #dfeefa;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(78, 165, 255, 0.12);
   transition: all 0.25s ease;
+  cursor: pointer;
 }
 
 .header .navbar a:hover {
@@ -225,6 +242,13 @@ body.active .blog-section .btn {
   border-color: rgba(44, 214, 38, 0.35);
   transform: translateX(0.3rem);
   box-shadow: inset 0 0 0 1px rgba(44, 214, 38, 0.2);
+}
+
+.header .navbar a.active {
+  color: var(--green);
+  border-color: rgba(44, 214, 38, 0.45);
+  background: rgba(44, 214, 38, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(44, 214, 38, 0.25), 0 0 1.2rem rgba(44, 214, 38, 0.12);
 }
 
 #menu-btn {
@@ -949,6 +973,7 @@ body.active .achievements .box p {
 
   .header {
     left: -110%;
+    width: 28rem;
   }
 
   .header.active {
@@ -969,6 +994,16 @@ body.active .achievements .box p {
   .header {
     width: 100%;
     border-right: 0;
+  }
+
+  .header .user img {
+    height: 10rem;
+    width: 10rem;
+  }
+
+  .header .navbar a {
+    font-size: 1.5rem;
+    padding: 0.8rem 1rem;
   }
 }
 

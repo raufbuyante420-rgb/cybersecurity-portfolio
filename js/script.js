@@ -1,6 +1,7 @@
 const menu = document.querySelector("#menu-btn");
 const header = document.querySelector(".header");
 const themeToggler = document.querySelector("#theme-toggler");
+const navLinks = document.querySelectorAll(".header .navbar a");
 
 if (menu) {
   menu.addEventListener("click", () => {
@@ -9,9 +10,44 @@ if (menu) {
   });
 }
 
+// Close mobile menu when a nav link is clicked
+navLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    if (menu) menu.classList.remove("fa-times");
+    if (header) header.classList.remove("active");
+  });
+});
+
+// Highlight active nav link based on scroll position
+function setActiveNavLink() {
+  const scrollPos = window.scrollY + 100;
+  let currentSection = "";
+
+  document.querySelectorAll("section[id]").forEach((section) => {
+    const sectionTop = section.offsetTop;
+    const sectionBottom = sectionTop + section.offsetHeight;
+    if (scrollPos >= sectionTop && scrollPos < sectionBottom) {
+      currentSection = section.getAttribute("id");
+    }
+  });
+
+  navLinks.forEach((link) => {
+    link.classList.remove("active");
+    if (link.getAttribute("href") === `#${currentSection}`) {
+      link.classList.add("active");
+    }
+  });
+}
+
 window.addEventListener("scroll", () => {
   if (menu) menu.classList.remove("fa-times");
   if (header) header.classList.remove("active");
+  setActiveNavLink();
+});
+
+// Set active link on page load
+window.addEventListener("load", () => {
+  setActiveNavLink();
 });
 
 if (themeToggler) {
