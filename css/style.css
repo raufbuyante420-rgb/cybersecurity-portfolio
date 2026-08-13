@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap");
 
 :root {
   --green: #2cd626;
   --green-soft: rgba(44, 214, 38, 0.17);
   --blue: #4ea5ff;
-  --black: #050b10;
+  --black: #eef7ff;
   --bg-color: #071016;
   --panel: rgba(14, 22, 30, 0.88);
   --panel-strong: rgba(10, 16, 22, 0.96);
@@ -20,7 +20,7 @@
   padding: 0;
   box-sizing: border-box;
   text-decoration: none;
-  text-transform: capitalize;
+  text-transform: uppercase;
   transition: 0.2s linear;
 }
 
@@ -399,13 +399,6 @@ body.active .blog-section .btn {
   font-weight: 500;
 }
 
-.home .content .location {
-  margin-top: 0.8rem;
-  font-size: 1.7rem;
-  color: var(--light-color);
-  letter-spacing: 0.12rem;
-  text-transform: none;
-}
 
 .home .content .cta-row {
   display: flex;
@@ -1126,4 +1119,74 @@ h3.experience__company {
 .education__item p {
   font-size: 1.8rem;
   color: var(--light-color);
+}
+
+
+/* FINAL OVERRIDES */
+body,
+button,
+input,
+textarea {
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+}
+
+.home .content p.typed,
+.experience__dates,
+.education__dates,
+.contact-details strong {
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* CONTACT INFO AND LINKS KEEP NORMAL CASING */
+.contact-details,
+.contact-details *,
+a,
+a * {
+  text-transform: none;
+}
+
+/* ALWAYS DARK MODE */
+html,
+body {
+  background: var(--bg-color);
+  color: var(--black);
+}
+
+body.active {
+  --black: #eef7ff;
+  --light-color: #b4c5d3;
+  --bg-color: #071016;
+  --border: 0.1rem solid rgba(102, 162, 255, 0.24);
+  --box-shadow: 0 1.5rem 3rem rgba(5, 11, 16, 0.45);
+  --box-shadow-inset: inset 0 0 0 1px rgba(78, 165, 255, 0.18);
+}
+
+/* TRYHACKME STAT DESCRIPTION */
+.about .row .box-container .box small {
+  display: block;
+  margin-top: 0.7rem;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: #8fa4b5;
+  font-family: "JetBrains Mono", monospace;
+  text-transform: uppercase;
+}
+
+/* THEME TOGGLE REMOVED / DISABLED */
+#theme-toggler {
+  display: none !important;
+}
+
+/* SEPARATE EXPERIENCE / EDUCATION */
+.experience,
+.education {
+  min-height: auto;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+}
+
+.experience .heading,
+.education .heading {
+  margin-bottom: 2rem;
 }
