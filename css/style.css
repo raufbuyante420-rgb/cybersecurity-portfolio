@@ -868,6 +868,7 @@ body.active .achievements .box p {
   place-items: center;
   transform: scale(0);
   transition: transform 0.3s ease;
+  pointer-events: none;
 }
 
 .portfolio .box-container .box:hover .content {
@@ -1224,4 +1225,137 @@ body.active {
 .experience .heading,
 .education .heading {
   margin-bottom: 2rem;
+}
+
+/* ===== LIGHTBOX / IMAGE ENLARGEMENT ===== */
+.portfolio .box-container .box {
+  cursor: zoom-in;
+}
+
+.lightbox {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(3, 8, 12, 0.94);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 2rem;
+}
+
+.lightbox.show {
+  display: flex;
+  animation: lightboxFadeIn 0.25s ease;
+}
+
+@keyframes lightboxFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightbox-content {
+  max-width: 92vw;
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.8rem;
+  box-shadow: 0 0 4rem rgba(44, 214, 38, 0.18), 0 0 0 1px rgba(78, 165, 255, 0.25);
+  animation: lightboxZoomIn 0.3s ease;
+}
+
+@keyframes lightboxZoomIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.lightbox-caption {
+  margin-top: 1.5rem;
+  font-size: 1.6rem;
+  color: #eef7ff;
+  text-align: center;
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: 0.05rem;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 2rem;
+  right: 3rem;
+  font-size: 4.5rem;
+  font-weight: 300;
+  color: #eef7ff;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.25s ease, transform 0.25s ease;
+  z-index: 10001;
+}
+
+.lightbox-close:hover {
+  color: var(--green);
+  transform: rotate(90deg);
+}
+
+.lightbox-prev,
+.lightbox-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(78, 165, 255, 0.12);
+  border: 1px solid rgba(78, 165, 255, 0.3);
+  color: #eef7ff;
+  font-size: 2.6rem;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  z-index: 10001;
+}
+
+.lightbox-prev {
+  left: 2rem;
+}
+
+.lightbox-next {
+  right: 2rem;
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+  background: rgba(44, 214, 38, 0.2);
+  border-color: rgba(44, 214, 38, 0.5);
+  color: var(--green);
+  box-shadow: 0 0 2rem rgba(44, 214, 38, 0.25);
+}
+
+@media (max-width: 450px) {
+  .lightbox-prev,
+  .lightbox-next {
+    width: 4.5rem;
+    height: 4.5rem;
+    font-size: 2rem;
+  }
+
+  .lightbox-prev {
+    left: 1rem;
+  }
+
+  .lightbox-next {
+    right: 1rem;
+  }
+
+  .lightbox-close {
+    top: 1.5rem;
+    right: 2rem;
+    font-size: 3.5rem;
+  }
 }
