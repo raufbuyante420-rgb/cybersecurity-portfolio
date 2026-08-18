@@ -31,9 +31,30 @@ function setActiveNavLink() {
     }
   });
 
+  const currentPage = window.location.pathname.split("/").pop() || "index.html";
+
   navLinks.forEach((link) => {
     link.classList.remove("active");
-    if (link.getAttribute("href") === `#${currentSection}`) {
+    const href = link.getAttribute("href") || "";
+
+    // Same-page anchor: "#section"
+    if (href === `#${currentSection}`) {
+      link.classList.add("active");
+      return;
+    }
+
+    // Cross-page anchor: "page.html#section" and we're on that page
+    if (href.includes("#")) {
+      const [hrefPage, hrefHash] = href.split("#");
+      const hrefPageName = hrefPage.split("/").pop() || "index.html";
+      if (hrefPageName === currentPage && hrefHash === currentSection) {
+        link.classList.add("active");
+        return;
+      }
+    }
+
+    // Direct link to the current page (e.g. projects.html)
+    if (href === currentPage && !href.includes("#")) {
       link.classList.add("active");
     }
   });
