@@ -1492,3 +1492,13 @@ body.active {
     font-size: 1.5rem;
   }
 }
+
+/* RESEARCH CARD */
+.projects-research-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr)); gap: 2rem; }
+.projects-research-card { padding: 2.5rem; border-radius: 1.2rem; background: rgba(78,165,255,.06); border: 1px solid rgba(44,214,38,.2); box-shadow: 0 0 2rem rgba(44,214,38,.08), inset 0 0 1rem rgba(78,165,255,.04); backdrop-filter: blur(8px); transition: all .3s ease; }
+.projects-research-card:hover { transform: translateY(-.3rem); border-color: rgba(44,214,38,.4); box-shadow: 0 0 3rem rgba(44,214,38,.18); }
+.projects-research-card i { font-size: 3.5rem; color: var(--green); margin-bottom: 1.2rem; }
+.projects-research-card h3 { font-size: 2rem; color: var(--black); margin-bottom: 1rem; }
+.projects-research-card p { font-size: 1.5rem; line-height: 1.7; color: var(--light-color); margin-bottom: 1.5rem; }
+.projects-research-card a { display: inline-flex; align-items: center; gap: .7rem; font-size: 1.4rem; font-weight: 600; color: var(--green); text-decoration: none; text-transform: none; transition: gap .25s ease; }
+.projects-research-card a:hover { gap: 1rem; }

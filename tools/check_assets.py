@@ -1,34 +1,45 @@
 import re
 import os
+import sys
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent
-html_path = root / 'index.html'
+html_files = [p for p in root.rglob('*.html') if 'node_modules' not in str(p)]
 
-with open(html_path, 'r', encoding='utf-8') as f:
-    html = f.read()
-
-# find src and href values
-patterns = re.findall(r'(?:src|href)=["\']([^"\']+)["\']', html)
-
-local_refs = [p for p in patterns if not p.startswith('http') and not p.startswith('//') and not p.startswith('data:')]
+# Schemes that should never be treated as local file references
+SKIP_SCHEMES = ('http://', 'https://', '//', 'data:', 'tel:', 'mailto:', 'ftp:', 'javascript:', '#')
 
 missing = []
-for ref in local_refs:
-    # strip query params and fragments
-    ref_path = ref.split('?')[0].split('#')[0]
-    # normalize
-    ref_path = ref_path.replace('/', os.sep)
-    full = root / ref_path
-    if not full.exists():
-        missing.append((ref, str(full)))
+total_local_refs = 0
 
-print('Checked', len(local_refs), 'local references.')
+for html_path in html_files:
+    with open(html_path, 'r', encoding='utf-8') as f:
+        html = f.read()
+
+    # find src and href values
+    patterns = re.findall(r'(?:src|href)=["\']([^"\']+)["\']', html)
+
+    local_refs = [p for p in patterns if not p.startswith(SKIP_SCHEMES)]
+
+    total_local_refs += len(local_refs)
+
+    for ref in local_refs:
+        # strip query params, fragments, and anchor-only links
+        ref_path = ref.split('?')[0].split('#')[0]
+        if not ref_path:
+            continue
+        # normalize path separators
+        ref_path = ref_path.replace('/', os.sep)
+        full = (html_path.parent / ref_path).resolve()
+        if not full.exists():
+            missing.append((str(html_path.relative_to(root)), ref, str(full)))
+
+print(f'Checked {len(html_files)} HTML file(s) with {total_local_refs} local references.')
 if missing:
-    print('\nMissing files:')
-    for ref, full in missing:
-        print(f"- {ref} -> {full}")
-    exit(2)
+    print(f'\nMissing files ({len(missing)}):')
+    for page, ref, full in missing:
+        print(f"- [{page}] {ref} -> {full}")
+    sys.exit(2)
 else:
-    print('\nNo missing local assets detected.')
-    exit(0)
+    print('\nAll local asset references resolve correctly.')
+    sys.exit(0)

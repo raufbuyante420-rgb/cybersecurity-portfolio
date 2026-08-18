@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSH Pivoting Lab — Security Research | Rauf J. Buyante</title>
+    <link rel="icon" href="../image/icon-browser.png" type="image/gif">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/research.css">
+</head>
+
+<body class="research-page-body">
+    <header class="header">
+        <div class="blurred-image"></div>
+        <div class="user">
+            <img src="../assets/profile/profile.png" alt="Rauf J. Buyante profile photo">
+            <h3>RAUF J. BUYANTE</h3>
+            <p>Cybersecurity Analyst · Penetration Tester · CTF PLAYER</p>
+        </div>
+
+        <nav class="navbar">
+            <a href="../index.html">home</a>
+            <a href="../index.html#about">about</a>
+            <a href="../index.html#experience">experience</a>
+            <a href="../index.html#education">education</a>
+            <a href="../index.html#achievements">achievements</a>
+            <a href="../projects.html" class="active">projects</a>
+            <a href="../index.html#certificates">certificates</a>
+            <a href="../index.html#contact">contact</a>
+        </nav>
+    </header>
+
+    <div id="menu-btn" class="fas fa-bars"></div>
+
+    <!-- ===== RESEARCH HERO ===== -->
+    <section class="research-hero">
+        <p class="research-hero__tag"><i class="fa-solid fa-shield-halved"></i> SECURITY RESEARCH</p>
+        <h1 class="heading">SSH PIVOTING <span>LAB</span></h1>
+        <p class="research-hero__sub">
+            Network Pivoting Through SSH Dynamic Port Forwarding<br>
+            A Practical Home Lab for the CRTA Certification
+        </p>
+        <div class="research-hero__meta">
+            <span><i class="fa-solid fa-calendar"></i> 2026</span>
+            <span><i class="fa-solid fa-tag"></i> Network Pivoting</span>
+            <span><i class="fa-solid fa-microchip"></i> VirtualBox</span>
+            <span><i class="fa-solid fa-terminal"></i> Kali · Ubuntu · Metasploitable2</span>
+        </div>
+        <a href="#overview" class="btn"><i class="fa-solid fa-arrow-down"></i> Read the Research</a>
+    </section>
+
+    <!-- ===== RESEARCH CONTENT ===== -->
+    <section class="research-content" id="overview">
+
+        <!-- TABLE OF CONTENTS -->
+        <div class="research-toc">
+            <h3><i class="fa-solid fa-list-ul"></i> Table of Contents</h3>
+            <ol>
+                <li><a href="#introduction">Introduction & Lab Objective</a></li>
+                <li><a href="#network-config">Network & Adapter Configuration</a></li>
+                <li><a href="#static-ip">Static IP Addressing</a></li>
+                <li><a href="#connectivity">Connectivity Testing</a></li>
+                <li><a href="#ssh-pivot">Establishing the SSH Pivot</a></li>
+                <li><a href="#proxychains">ProxyChains Configuration</a></li>
+                <li><a href="#testing-pivot">Testing the Pivot</a></li>
+                <li><a href="#conclusion">Internal Access & Conclusion</a></li>
+            </ol>
+        </div>
+
+        <!-- SECTION 1: INTRODUCTION -->
+        <div class="research-article" id="introduction">
+            <h2><span>01</span> Introduction & Lab Objective</h2>
+
+            <div class="research-article__body">
+                <p>
+                    I initially began studying <strong>network pivoting</strong> as part of my preparation and practical
+                    training for the <strong>CRTA certification</strong>. To practice these concepts in a controlled
+                    environment, I created a home lab demonstrating <strong>SSH-based routing and network pivoting</strong>
+                    across segmented networks.
+                </p>
+
+                <p>
+                    The lab was built in <strong>VirtualBox</strong> using:
+                </p>
+
+                <div class="research-lab-hosts">
+                    <div class="research-lab-host">
+                        <i class="fa-brands fa-linux"></i>
+                        <h4>Kali Linux</h4>
+                        <p><span class="label">Role:</span> Attacker</p>
+                        <p><span class="label">Network:</span> KALI-NET (External)</p>
+                        <p><span class="label">IP:</span> 192.168.56.10</p>
+                    </div>
+                    <div class="research-lab-host">
+                        <i class="fa-brands fa-ubuntu"></i>
+                        <h4>Ubuntu Server</h4>
+                        <p><span class="label">Role:</span> Pivot Host</p>
+                        <p><span class="label">Network:</span> KALI-NET + Internal</p>
+                        <p><span class="label">IPs:</span> 192.168.56.20 / 10.10.10.20</p>
+                    </div>
+                    <div class="research-lab-host">
+                        <i class="fa-solid fa-server"></i>
+                        <h4>Metasploitable 2</h4>
+                        <p><span class="label">Role:</span> Internal Target</p>
+                        <p><span class="label">Network:</span> Internal (Isolated)</p>
+                        <p><span class="label">IP:</span> 10.10.10.30</p>
+                    </div>
+                </div>
+
+                <div class="research-callout">
+                    <i class="fa-solid fa-bullseye"></i>
+                    <div>
+                        <strong>The Objective:</strong><br>
+                        Establish an SSH connection from Kali Linux to Ubuntu, then use that connection as a
+                        <strong>pivot</strong> into the internal network. Kali Linux does not have direct access to
+                        Metasploitable 2 — Ubuntu serves as the intermediary between the external KALI-NET network and
+                        the isolated internal network.
+                    </div>
+                </div>
+
+                <p>The simple lab topology is illustrated below:</p>
+            </div>
+
+            <figure class="research-figure">
+                <img src="../assets/research/ssh-pivoting/01-lab-topology.png"
+                     alt="Lab topology diagram showing Kali -> Ubuntu pivot -> Metasploitable 2"
+                     loading="lazy">
+                <figcaption>Lab Topology — Kali (192.168.56.10) → Ubuntu Pivot (192.168.56.20 / 10.10.10.20) → Metasploitable 2 (10.10.10.30)</figcaption>
+            </figure>
+        </div>
+
+        <!-- SECTION 2: NETWORK CONFIG -->
+        <div class="research-article" id="network-config">
+            <h2><span>02</span> Network & Adapter Configuration</h2>
+
+            <div class="research-article__body">
+                <p>
+                    I used <strong>VirtualBox</strong> for this lab and enabled network adapters attached to
+                    <strong>INTERNAL networks</strong>. This creates an isolated network segment where the external
+                    network (KALI-NET) is separated from the internal network that contains the target.
+                </p>
+
+                <h3>Kali Linux Configuration</h3>
+                <p>
+                    For the Kali machine, I configured <code>KALI-NET</code> as the external network interface.
+                    I also added a second network adapter set to <strong>NAT</strong> to provide internet access
+                    to the attacker machine for installing tools and updates.
+                </p>
+            </div>
+
+            <div class="research-figure-grid">
+                <figure class="research-figure">
+                    <img src="../assets/research/ssh-pivoting/02-kali-network-config-1.png"
+                         alt="Kali Linux network adapter configuration 1" loading="lazy">
+                    <figcaption>Kali Linux — KALI-NET External Network Adapter</figcaption>
+                </figure>
+                <figure class="research-figure">
+                    <img src="../assets/research/ssh-pivoting/03-kali-network-config-2.png"
+                         alt="Kali Linux network adapter configuration 2" loading="lazy">
+                    <figcaption>Kali Linux — NAT Adapter for Internet Access</figcaption>
+                </figure>
+            </div>
+
+            <div class="research-article__body">
+                <h3>Ubuntu Server Configuration</h3>
+                <p>
+                    The Ubuntu Server is configured with connectivity to <strong>both</strong> the external and internal
+                    networks. This dual-network configuration allows Ubuntu to function as the <strong>pivot host</strong> —
+                    receiving traffic from Kali on the external interface and forwarding it to the internal network.
+                </p>
+            </div>
+
+            <div class="research-figure-grid">
+                <figure class="research-figure">
+                    <img src="../assets/research/ssh-pivoting/04-ubuntu-setup-1.png"
+                         alt="Ubuntu Server setup configuration 1" loading="lazy">
+                    <figcaption>Ubuntu Pivot Host — External Interface</figcaption>
+                </figure>
+                <figure class="research-figure">
+                    <img src="../assets/research/ssh-pivoting/05-ubuntu-setup-2.png"
+                         alt="Ubuntu Server setup configuration 2" loading="lazy">
+                    <figcaption>Ubuntu Pivot Host — Internal Interface</figcaption>
+                </figure>
+            </div>
+
+            <figure class="research-figure">
+                <img src="../assets/research/ssh-pivoting/06-ubuntu-pivot-config.png"
+                     alt="Ubuntu pivot host dual network configuration" loading="lazy">
+                <figcaption>Metasploitable 2 NETWORK ADAPTER SETUP</figcaption>
+            </figure>
+        </div>
+
+        <!-- SECTION 3: STATIC IP -->
+        <div class="research-article" id="static-ip">
+            <h2><span>03</span> Static IP Addressing</h2>
+
+            <div class="research-article__body">
+                <p>
+                    After configuring the virtual network adapters, I assigned <strong>static IP addresses</strong> to each
+                    machine. The resulting addressing scheme is:
+                </p>
+
+                <div class="research-table-wrapper">
+                    <table class="research-table">
+                        <thead>
+                            <tr>
+                                <th>Machine</th>
+                                <th>Interface</th>
+                                <th>IP Address</th>
+                                <th>Network</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Kali Linux</td>
+                                <td>eth0</td>
+                                <td><code>192.168.56.10</code></td>
+                                <td>KALI-NET</td>
+                            </tr>
+                            <tr>
+                                <td>Ubuntu Pivot (External)</td>
+                                <td>enp0s3</td>
+                                <td><code>192.168.56.20</code></td>
+                                <td>KALI-NET</td>
+                            </tr>
+                            <tr>
+                                <td>Ubuntu Pivot (Internal)</td>
+                                <td>enp0s8</td>
+                                <td><code>10.10.10.20</code></td>
+                                <td>Internal</td>
+                            </tr>
+                            <tr>
+                                <td>Metasploitable 2</td>
+                                <td>eth0</td>
+                                <td><code>10.10.10.30</code></td>
+                                <td>Internal</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p>
+                    Since those OS installations don't have IP addresses assigned yet, I used the following commands to
+                    set static IPs based on the external network configuration:
+                </p>
+
+                <h3>Kali Linux — 192.168.56.10</h3>
+                <div class="research-code">
+                    <div class="research-code__header">
+                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                        <span>Kali Terminal</span>
+                    </div>
+                    <pre><code>sudo ip addr flush dev eth0 && sudo ip addr add 192.168.56.10/24 dev eth0 && sudo ip link set eth0 up</code></pre>
+                </div>
+
+                <h3>Ubuntu Pivot — External (192.168.56.20)</h3>
+                <div class="research-code">
+                    <div class="research-code__header">
+                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                        <span>Ubuntu Terminal</span>
+                    </div>
+                    <pre><code>sudo ip addr flush dev enp0s3 && sudo ip addr add 192.168.56.20/24 dev enp0s3 && sudo ip link set enp0s3 up</code></pre>
+                </div>
+
+                <h3>Ubuntu Pivot — Internal (10.10.10.20)</h3>
+                <div class="research-code">
+                    <div class="research-code__header">
+                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                        <span>Ubuntu Terminal</span>
+                    </div>
+                    <pre><code>sudo ip addr flush dev enp0s8 && sudo ip addr add 10.10.10.20/24 dev enp0s8 && sudo ip link set enp0s8 up</code></pre>
+                </div>
+
+                <h3>Metasploitable 2 — 10.10.10.30</h3>
+                <div class="research-code">
+                    <div class="research-code__header">
+                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                        <span>Metasploitable Terminal</span>
+                    </div>
+                    <pre><code>sudo ifconfig eth0 10.10.10.30 netmask 255.255.255.0 up</code></pre>
+                </div>
+            </div>
+
+            <div class="research-figure-grid">
+                <figure class="research-figure">
+                    <img src="../assets/research/ssh-pivoting/07-static-ip-config-1.png"
+                         alt="Static IP configuration commands output 1" loading="lazy">
+                    <figcaption>Setting Static IPs — Kali & Ubuntu External</figcaption>
+                </figure>
+                <figure class="research-figure">
+                    <img src="../assets/research/ssh-pivoting/08-static-ip-config-2.png"
+                         alt="Static IP configuration commands output 2" loading="lazy">
+                    <figcaption>Setting Static IPs — Ubuntu Internal & Metasploitable</figcaption>
+                </figure>
+            </div>
+
+            <div class="research-figure-grid">
+                <figure class="research-figure">
+                    <img src="../assets/research/ssh-pivoting/09-metasploitable-config-1.png"
+                         alt="Metasploitable 2 static IP configuration 1" loading="lazy">
+                    <figcaption>Metasploitable 2 — Static IP Assignment</figcaption>
+                </figure>
+                <figure class="research-figure">
+                    <img src="../assets/research/ssh-pivoting/10-metasploitable-config-2.png"
+                         alt="Metasploitable 2 static IP configuration 2" loading="lazy">
+                    <figcaption>Verifying the Assigned IP Addresses</figcaption>
+                </figure>
+            </div>
+
+            <div class="research-callout research-callout--success">
+                <i class="fa-solid fa-check-circle"></i>
+                <div>
+                    After that, all machines should have the correct IP addresses, and we can verify the
+                    configuration before moving to connectivity testing.
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: CONNECTIVITY -->
+        <div class="research-article" id="connectivity">
+            <h2><span>04</span> Connectivity Testing</h2>
+
+            <div class="research-article__body">
+                <p>
+                    With the network configuration complete, I tested connectivity between the machines.
+                    <strong>Kali Linux should be able to reach Ubuntu</strong> because both systems are connected to the
+                    external network.
+                </p>
+
+                <p>
+                    However, <strong>Kali Linux should NOT be able to directly reach Metasploitable 2</strong> because the
+                    target resides on the isolated internal network. This behavior establishes the <em>baseline condition</em>
+                    that the pivot is intended to overcome.
+                </p>
+
+                <div class="research-callout research-callout--warning">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div>
+                        <strong>Note:</strong> Kali <em>should not</em> be able to ping Metasploitable 2 because it is
+                        inside the internal network. However, when we ping Ubuntu — which is on the KALI-NET network —
+                        the ping will succeed.
+                    </div>
+                </div>
+            </div>
+
+            <figure class="research-figure">
+                <img src="../assets/research/ssh-pivoting/11-connectivity-ping-test.png"
+                     alt="Ping test showing Kali cannot reach Metasploitable but can reach Ubuntu" loading="lazy">
+                <figcaption>Connectivity Test — Ping from Kali to Ubuntu (works) and Metasploitable (fails as expected)</figcaption>
+            </figure>
+        </div>
+
+        <!-- SECTION 5: SSH PIVOT -->
+        <div class="research-article" id="ssh-pivot">
+            <h2><span>05</span> Establishing the SSH Pivot</h2>
+            <div class="research-article__body">
+                <p>
+                    After confirming the network configuration, I established an <strong>SSH connection</strong> from Kali
+                    Linux to the Ubuntu pivot host. Once we have the credentials for the Ubuntu SSH server, we can connect
+                    to it from the Kali machine.
+                </p>
+                <h3>The SSH Command</h3>
+                <div class="research-code">
+                    <div class="research-code__header">
+                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                        <span>Kali Terminal</span>
+                    </div>
+                    <pre><code>ssh -D 9050 pivot@192.168.56.20</code></pre>
+                </div>
+                <div class="research-callout research-callout--info">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <div>
+                        <strong>The important option is <code>-D 9050</code>.</strong> This creates a
+                        <strong>SOCKS proxy</strong> on Kali at <code>127.0.0.1:9050</code>.
+                        SSH <strong>dynamic forwarding</strong> allows applications using the SOCKS proxy to request
+                        TCP connections through the SSH server.
+                    </div>
+                </div>
+            </div>
+            <div class="research-figure-grid">
+                <figure class="research-figure">
+                    <img src="../assets/research/ssh-pivoting/12-ssh-connection-1.png"
+                         alt="SSH connection from Kali to Ubuntu pivot" loading="lazy">
+                    <figcaption>SSH Dynamic Forwarding — Connecting Kali → Ubuntu</figcaption>
+                </figure>
+                <figure class="research-figure">
+                    <img src="../assets/research/ssh-pivoting/13-ssh-connection-2.png"
+                         alt="SSH connection established to Ubuntu pivot" loading="lazy">
+                    <figcaption>Active SSH Session on the Ubuntu Pivot</figcaption>
+                </figure>
+            </div>
+            <div class="research-article__body">
+                <p>
+                    Now we have an active SSH terminal on the Ubuntu machine. Back on our Kali machine, we need to
+                    set up <strong>ProxyChains</strong> to route our network traffic through the SSH SOCKS proxy.
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 6: PROXYCHAINS -->
+        <div class="research-article" id="proxychains">
+            <h2><span>06</span> ProxyChains Configuration</h2>
+            <div class="research-article__body">
+                <p>
+                    The SSH session creates a SOCKS proxy on Kali Linux. I then configured <strong>ProxyChains</strong>
+                    to use this local SOCKS5 proxy so that supported applications can send traffic through the SSH connection.
+                </p>
+                <p>
+                    The ProxyChains configuration file is located at <code>/etc/proxychains4.conf</code>.
+                    We need to add the following entry at the end of the configuration:
+                </p>
+                <div class="research-code">
+                    <div class="research-code__header">
+                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                        <span>/etc/proxychains4.conf</span>
+                    </div>
+                    <pre><code><span class="code-comment"># Add at the end of the file</span>
+socks5 127.0.0.1 9050</code></pre>
+                </div>
+                <p>
+                    Using <code>tail</code> we can verify the entry has been added to the configuration file.
+                </p>
+            </div>
+            <figure class="research-figure">
+                <img src="../assets/research/ssh-pivoting/14-proxychains-config.png"
+                     alt="ProxyChains configuration showing socks5 127.0.0.1 9050" loading="lazy">
+                <figcaption>ProxyChains Config — <code>socks5 127.0.0.1 9050</code> Added at the End</figcaption>
+            </figure>
+            <div class="research-callout research-callout--success">
+                <i class="fa-solid fa-check-circle"></i>
+                <div>
+                    Now we have successfully established an active SSH terminal and configured ProxyChains.
+                    Time to test if the pivot works!
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 7: TESTING PIVOT -->
+        <div class="research-article" id="testing-pivot">
+            <h2><span>07</span> Testing the Pivot</h2>
+            <div class="research-article__body">
+                <p>
+                    After configuring ProxyChains, I tested whether Kali Linux could reach the internal Metasploitable 2
+                    host through the Ubuntu pivot. I used <strong>Netcat</strong> through ProxyChains to test TCP
+                    connectivity to port 22 on the internal target:
+                </p>
+                <div class="research-code">
+                    <div class="research-code__header">
+                        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+                        <span>Kali Terminal</span>
+                    </div>
+                    <pre><code>proxychains4 nc -vz -w 5 10.10.10.30 22</code></pre>
+                </div>
+                <p>
+                    The <strong>successful result</strong> demonstrates that traffic from Kali Linux can traverse the
+                    SSH SOCKS proxy and reach the internal network.
+                </p>
+            </div>
+            <figure class="research-figure">
+                <img src="../assets/research/ssh-pivoting/15-proxychains-nc-test.png"
+                     alt="Netcat test through proxychains showing port 22 open on Metasploitable" loading="lazy">
+                <figcaption>Netcat Through ProxyChains — Port 22 on Metasploitable 2 is Reachable</figcaption>
+            </figure>
+            <div class="research-article__body">
+                <p>
+                    We can see that it's now working! We can also try to <code>curl</code> using proxychains to further
+                    verify internal network access.
+                </p>
+                <div class="research-callout research-callout--success">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <div>
+                        Now we have access to the internal network using our Kali Linux, with Ubuntu as the
+                        pivot machine. Then we can even SSH into Metasploitable 2 from Kali using proxychains!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 8: CONCLUSION -->
+        <div class="research-article" id="conclusion">
+            <h2><span>08</span> Internal Network Access & Conclusion</h2>
+            <div class="research-article__body">
+                <p>
+                    The final step is establishing <strong>SSH connectivity to Metasploitable 2</strong> through
+                    ProxyChains and the SSH pivot. Since Metasploitable 2 runs an older version of SSH, the command
+                    must use legacy-compatible options.
+                </p>
+            </div>
+            <figure class="research-figure">
+                <img src="../assets/research/ssh-pivoting/16-final-ssh-metasploitable.png"
+                     alt="SSH connection to Metasploitable 2 through proxychains" loading="lazy">
+                <figcaption>Final Step — SSH Into Metasploitable 2 Through the Pivot</figcaption>
+            </figure>
+            <div class="research-conclusion">
+                <h3><i class="fa-solid fa-flag-checkered"></i> Conclusion</h3>
+                <p>
+                    With the pivot operational, Kali Linux can access services on the internal network through Ubuntu.
+                    This lab demonstrates the practical use of:
+                </p>
+                <ul>
+                    <li><strong>SSH Dynamic Port Forwarding</strong> (<code>-D</code> flag) to create a SOCKS proxy</li>
+                    <li><strong>SOCKS5 Proxy</strong> tunneling at <code>127.0.0.1:9050</code></li>
+                    <li><strong>ProxyChains</strong> to route application traffic through the SSH tunnel</li>
+                    <li><strong>Network Pivoting</strong> to reach a network segment not directly accessible from the attacker machine</li>
+                </ul>
+                <div class="research-key-takeaways">
+                    <h4><i class="fa-solid fa-key"></i> Key Takeaways</h4>
+                    <ol>
+                        <li>SSH <code>-D</code> creates a local SOCKS proxy that forwards TCP through the SSH server</li>
+                        <li>ProxyChains wraps applications so they use the SOCKS proxy transparently</li>
+                        <li>Separating networks with a dual-homed host enables controlled pivoting</li>
+                        <li>This technique is essential for penetration testers moving laterally in segmented environments</li>
+                    </ol>
+                </div>
+                <div class="research-tools-used">
+                    <h4><i class="fa-solid fa-toolbox"></i> Tools & Technologies Used</h4>
+                    <div class="research-tool-tags">
+                        <span>VirtualBox</span>
+                        <span>Kali Linux</span>
+                        <span>Ubuntu Server</span>
+                        <span>Metasploitable 2</span>
+                        <span>OpenSSH</span>
+                        <span>ProxyChains</span>
+                        <span>Netcat (nc)</span>
+                        <span>ip / ifconfig</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BACK TO PROJECTS -->
+        <div class="research-back">
+            <a href="../projects.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Back to Projects</a>
+            <a href="#overview" class="btn btn--ghost"><i class="fa-solid fa-arrow-up"></i> Back to Top</a>
+        </div>
+    </section>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img" alt="Enlarged image">
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+        <button class="lightbox-prev" id="lightbox-prev">&#10094;</button>
+        <button class="lightbox-next" id="lightbox-next">&#10095;</button>
+    </div>
+
+    <script src="../js/typed.js/typed.min.js"></script>
+    <script src="../js/script.js"></script>
+</body>
+
+</html>
