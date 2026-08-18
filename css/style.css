@@ -1381,6 +1381,99 @@ body.active {
   color: var(--light-color);
 }
 
+.projects-preview__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(32rem, 1fr));
+  gap: 2rem;
+  max-width: 110rem;
+  margin: 0 auto 3rem;
+}
+
+.projects-preview__card {
+  display: block;
+  text-align: left;
+  border-radius: 1.2rem;
+  background: rgba(78, 165, 255, 0.06);
+  border: 1px solid rgba(44, 214, 38, 0.2);
+  box-shadow: 0 0 2rem rgba(44, 214, 38, 0.08), inset 0 0 1rem rgba(78, 165, 255, 0.04);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.projects-preview__card:hover {
+  transform: translateY(-0.4rem);
+  border-color: rgba(44, 214, 38, 0.4);
+  box-shadow: 0 0 3rem rgba(44, 214, 38, 0.18), inset 0 0 1.2rem rgba(78, 165, 255, 0.08);
+}
+
+.projects-preview__thumb {
+  position: relative;
+  height: 22rem;
+  overflow: hidden;
+}
+
+.projects-preview__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.projects-preview__card:hover .projects-preview__thumb img {
+  transform: scale(1.06);
+}
+
+.projects-preview__badge {
+  position: absolute;
+  top: 1.2rem;
+  left: 1.2rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.1rem;
+  color: #071016;
+  background: var(--green);
+  box-shadow: 0 0 1.2rem rgba(44, 214, 38, 0.4);
+}
+
+.projects-preview__body {
+  padding: 2rem 2rem 2.4rem;
+}
+
+.projects-preview__body h3 {
+  font-size: 2rem;
+  color: var(--black);
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04rem;
+}
+
+.projects-preview__body p {
+  font-size: 1.4rem;
+  line-height: 1.7;
+  color: var(--light-color);
+  margin-bottom: 1.4rem;
+  text-transform: none;
+}
+
+.projects-preview__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--green);
+  text-transform: none;
+  transition: gap 0.25s ease;
+}
+
+.projects-preview__card:hover .projects-preview__link {
+  gap: 1.1rem;
+}
+
 .projects-preview__cta {
   display: flex;
   justify-content: center;
@@ -1490,6 +1583,20 @@ body.active {
 
   .projects-hero__sub {
     font-size: 1.5rem;
+  }
+
+  .projects-preview__grid {
+    grid-template-columns: 1fr;
+    max-width: 42rem;
+  }
+
+  .projects-preview__thumb {
+    height: 18rem;
+  }
+
+  .projects-research-grid {
+    grid-template-columns: 1fr;
+    max-width: 42rem;
   }
 }
 
